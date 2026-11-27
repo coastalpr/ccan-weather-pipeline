@@ -18,11 +18,23 @@ NETCDF_FILE="weather_data.nc"
 #GIT_REMOTE="git@github.com:coastalpr/ccan_weatherstations.git"
 
 GIT_BRANCH="main"
-GIT_REMOTE="https://github.com/coastalpr/ccan_weatherstations.git"
+#GIT_REMOTE="https://github.com/coastalpr/ccan_weatherstations.git"
 
 # Authenticate without saving the token in Git configuration
-AUTH_HEADER="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+#AUTH_HEADER="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
 # ------------------------
+if [[ -z "${GH_TOKEN:-}" ]]; then
+    echo "ERROR: GH_TOKEN is missing."
+    exit 1
+fi
+
+AUTH_HEADER="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+GIT_REMOTE="https://github.com/coastalpr/ccan_weatherstations.git"
+
+git -c http.extraheader="$AUTH_HEADER" \
+    clone --branch "$GIT_BRANCH" "$GIT_REMOTE" "$REPO_DIR"
+
+git -c http.extraheader="$AUTH_HEADER" push origin "$GIT_BRANCH"
 
 echo "======================================"
 echo "CCAN WEATHER STATION UPDATE"
