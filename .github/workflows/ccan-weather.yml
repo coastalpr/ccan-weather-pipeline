@@ -3,7 +3,7 @@ name: CCAN Weather Station Automation
 
 on:
   schedule:
-    - cron: '00,10,22,30,40,50 * * * *'
+    - cron: '00,10,28,30,40,50 * * * *'
   workflow_dispatch:
   
 permissions:
