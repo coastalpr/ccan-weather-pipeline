@@ -46,6 +46,11 @@ echo "Running Python downloader..."
 
 python "$PYTHON_SCRIPT"
 
+# Move the generated file from temp/ to netcdf/
+if [[ -f "$TEMP_DIR/weather_data.nc" ]]; then
+    cp "$TEMP_DIR/weather_data.nc" "$OUTPUT_DIR/weather_data.nc"
+fi
+
 # 4. Verify output
 
 NETCDF_PATH="$OUTPUT_DIR/$NETCDF_FILE"
