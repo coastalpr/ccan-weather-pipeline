@@ -3,8 +3,7 @@ name: CCAN Weather Station Automation
 
 on:
   schedule:
-    # Every day at 9:00 AM Puerto Rico time (13:00 UTC)
-    - cron: '0 13 * * *'
+    - cron: '*/10 * * * *'
 
   workflow_dispatch:
 
@@ -17,49 +16,26 @@ concurrency:
 
 jobs:
   update-weather:
-    name: Download and publish NetCDF
     runs-on: ubuntu-latest
 
     steps:
-
-      # 1. Download source repository
       - name: Checkout CCAN weather pipeline
         uses: actions/checkout@v4
 
-      # 2. Install Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: pip
 
-      # 3. Install dependencies
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
 
-      # 4. Configure SSH
-      - name: Configure GitHub SSH
-        env:
-          CCAN_SSH_PRIVATE_KEY: ${{ secrets.CCAN_SSH_PRIVATE_KEY }}
-        run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-
-          printf '%s\n' "$CCAN_SSH_PRIVATE_KEY" \
-            > ~/.ssh/id_ed25519
-
-          chmod 600 ~/.ssh/id_ed25519
-
-          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
-
-      # 5. Execute weather downloader and publish data
       - name: Run CCAN weather update
         env:
-          GIT_SSH_COMMAND: ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes
+          GH_TOKEN: ${{ secrets.CCAN_GITHUB_TOKEN }}
         run: |
           chmod +x run_weather_update.sh
           ./run_weather_update.sh
-
