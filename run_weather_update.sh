@@ -14,9 +14,14 @@ TEMP_DIR="$PROJECT_DIR/temp"
 
 NETCDF_FILE="weather_data.nc"
 
-GIT_BRANCH="main"
-GIT_REMOTE="git@github.com:coastalpr/ccan_weatherstations.git"
+#GIT_BRANCH="main"
+#GIT_REMOTE="git@github.com:coastalpr/ccan_weatherstations.git"
 
+GIT_BRANCH="main"
+GIT_REMOTE="https://github.com/coastalpr/ccan_weatherstations.git"
+
+# Authenticate without saving the token in Git configuration
+AUTH_HEADER="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
 # ------------------------
 
 echo "======================================"
@@ -61,15 +66,22 @@ echo "NetCDF file generated successfully."
 
 echo "Cloning CCAN weather repository..."
 
+#REPO_DIR="$(mktemp -d)"
+
+#cleanup() {
+#    rm -rf "$REPO_DIR"
+#}
+
+#trap cleanup EXIT
+
+#git clone --branch "$GIT_BRANCH" "$GIT_REMOTE" "$REPO_DIR"
+
+#cd "$REPO_DIR"
+
 REPO_DIR="$(mktemp -d)"
 
-cleanup() {
-    rm -rf "$REPO_DIR"
-}
-
-trap cleanup EXIT
-
-git clone --branch "$GIT_BRANCH" "$GIT_REMOTE" "$REPO_DIR"
+git -c http.extraheader="$AUTH_HEADER" \
+    clone --branch "$GIT_BRANCH" "$GIT_REMOTE" "$REPO_DIR"
 
 cd "$REPO_DIR"
 
@@ -90,21 +102,35 @@ git add "$NETCDF_FILE"
 
 # 9. Commit and push only if changed
 
+#if ! git diff --cached --quiet; then
+
+#    COMMIT_MESSAGE="Update NetCDF output ($(date -u '+%Y-%m-%d %H:%M:%S UTC'))"
+
+#    git commit -m "$COMMIT_MESSAGE"
+
+#    echo "Pushing updated weather data..."
+
+#    git push origin "$GIT_BRANCH"
+
+#else
+
+#    echo "No changes detected. Nothing to commit."
+
+#fi
+
+git add weather_data.nc
+
 if ! git diff --cached --quiet; then
 
-    COMMIT_MESSAGE="Update NetCDF output ($(date -u '+%Y-%m-%d %H:%M:%S UTC'))"
+    git commit -m "Update NetCDF output ($(date -u '+%Y-%m-%d %H:%M:%S UTC'))"
 
-    git commit -m "$COMMIT_MESSAGE"
-
-    echo "Pushing updated weather data..."
-
-    git push origin "$GIT_BRANCH"
+    git -c http.extraheader="$AUTH_HEADER" \
+        push origin "$GIT_BRANCH"
 
 else
-
-    echo "No changes detected. Nothing to commit."
-
+    echo "No changes detected."
 fi
+
 
 echo "======================================"
 echo "CCAN WEATHER UPDATE COMPLETED"
