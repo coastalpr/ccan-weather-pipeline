@@ -95,7 +95,7 @@ trap cleanup EXIT
 
 echo "Cloning CCAN weather repository..."
 
-git -c http.extraheader="$AUTH_HEADER" \
+git -c "http.https://github.com/.extraheader=$AUTH_HEADER" \
     clone --branch "$GIT_BRANCH" "$GIT_REMOTE" "$REPO_DIR"
 
 cd "$REPO_DIR"
@@ -111,31 +111,22 @@ cp "$NETCDF_PATH" "$NETCDF_FILE"
 git config user.name "CCAN Weather Bot"
 git config user.email "ccan-weather-bot@users.noreply.github.com"
 
-# 10. Add NetCDF file
-
-echo "Adding NetCDF file..."
+# 10. Commit and push
 
 git add "$NETCDF_FILE"
 
-# 11. Commit and push only if changed
-
 if ! git diff --cached --quiet; then
 
-    COMMIT_MESSAGE="Update NetCDF output ($(date -u '+%Y-%m-%d %H:%M:%S UTC'))"
-
-    git commit -m "$COMMIT_MESSAGE"
+    git commit -m "Update NetCDF output ($(date -u '+%Y-%m-%d %H:%M:%S UTC'))"
 
     echo "Pushing updated weather data..."
 
-    git -c http.extraheader="$AUTH_HEADER" \
+    git -c "http.https://github.com/.extraheader=$AUTH_HEADER" \
         push origin "$GIT_BRANCH"
 
 else
-
-    echo "No changes detected. Nothing to commit."
-
+    echo "No changes detected."
 fi
-
 # ======================================
 # COMPLETE
 # ======================================
