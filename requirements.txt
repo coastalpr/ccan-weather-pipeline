@@ -1,5 +1,7 @@
 streamlit
-pandas
-numpy
-xarray
 plotly
+requests
+numpy
+pandas
+netCDF4
+xarray
