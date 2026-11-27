@@ -18,12 +18,28 @@ import numpy as np
 import xarray as xr
 import shutil
 
+from pathlib import Path
+
+# Project directory (parent of scripts/)
+PROJECT_DIR = Path(__file__).resolve().parents[1]
+
+# Output directories
+OUTPUT_DIR = PROJECT_DIR / "netcdf"
+TEMP_DIR = PROJECT_DIR / "temp"
+
+# Create directories if they don't exist
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+TEMP_DIR.mkdir(parents=True, exist_ok=True)
+
 # ================= SETTINGS =================
 API_TOKEN = "4878c623-c1e7-4810-99ce-6f356f6f11d0"
 DEVICE_ID = "475512"
 
-LOCAL_OUTFILE = r"/mnt/d/CCAN_Weatherstations_Scripts/CCAN_REAL_TIME_DATA/temp/weather_data.nc"
-DROPBOX_OUTFILE = r"/mnt/d/CCAN_Weatherstations_Scripts/CCAN_REAL_TIME_DATA/netcdf/weather_data.nc"
+#LOCAL_OUTFILE = r"/mnt/d/CCAN_Weatherstations_Scripts/CCAN_REAL_TIME_DATA/temp/weather_data.nc"
+LOCAL_OUTFILE = str(TEMP_DIR / "weather_data.nc")
+
+#DROPBOX_OUTFILE = r"/mnt/d/CCAN_Weatherstations_Scripts/CCAN_REAL_TIME_DATA/netcdf/weather_data.nc"
+DROPBOX_OUTFILE = str(TEMP_DIR / "weather_data.nc")
 
 # Number of past days to download
 DAYS_BACK = 3  # ← change this
